@@ -1,21 +1,17 @@
-from sqlalchemy.orm import Session
+from app.db.repositories.user_repository import UserRepository
+from app.queue.queue_service import QueueService
 
-from app.db.models import User
-from app.queue.tasks import send_welcome_email
-from app.queue.connection import queue
 
 class UserService:
 
-```
-@staticmethod
-def create_user(db: Session, name: str, email: str):
-    user = User(name=name, email=email)
+    @staticmethod
+    def create_user(name: str, email: str):
 
-    db.add(user)
-    db.commit()
-    db.refresh(user)
+        user = UserRepository.create_user(
+            name=name,
+            email=email
+        )
 
-    queue.enqueue(send_welcome_email, email)
+        QueueService.send_welcome_email(email)
 
-    return user
-```
+        return user
